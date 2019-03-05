@@ -1,7 +1,7 @@
 # CV-RaceNet
-Configure ClearView ground station receivers with a GUI; for drone racing organizers
+Configure ClearView ground station receivers with a GUI; for drone racing organizers.
 
-This is a work in progress - announcements will be made when it works. This python-based code is intended to communicate with a ClearView. This software is 3rd part and unsupported by ClearView. 
+This is a work in progress - announcements will be made when it works. This python-based code is intended to communicate with a ClearView. This software is 3rd party and unsupported by Iftron/ClearViewFPV. 
 
 Hardware required:
 1) A ClearView Racing or ClearView Pro Receiver
