@@ -21,7 +21,9 @@ How to use:
 5) $ pipenv install pyserial
 
 5) to run the program: $ pipenv run python cv_main.py
-	It will create a virtual environment when it first runs. May take a while
+	It will create a virtual environment when it first runs. May take a while..
+	
+	
 Libraries Used:
 serial #For using the FPC device to communicate with the ClearView
 tkinter #For the GUI
