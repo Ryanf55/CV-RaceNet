@@ -26,6 +26,7 @@ How to use:
 	
 Libraries Used:
 serial #For using the FPC device to communicate with the ClearView
+
 tkinter #For the GUI
 
 
