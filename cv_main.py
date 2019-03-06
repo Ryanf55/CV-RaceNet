@@ -225,6 +225,15 @@ def setLockStat(lockEnable):
     print("FIXME - Change lock stat to ",lockEnable)
     
 
+def all_lock_change():
+    new_lock_value = seat_all_cvEnableBool_var.get()
+    print("New val: ",new_lock_value)
+    
+    for i in range(len(seat_cvEnable_variables)):
+        print("i is ",i,"... Changing from ", seat_cvEnable_variables[i].get(), " to ",new_lock_value)
+        seat_cvEnable_variables[i].set(new_lock_value)
+        
+
 
 
 #Seats, top row applies commands to all CV's that are connected
@@ -232,7 +241,10 @@ seat_all_label = tk.Label(main_window,text="All")
 seat_all_label.grid(row=2,column=0)
 seat_all_cvEnableBool_var = tk.IntVar()
 seat_all_cvEnableBool_var.set(True)
-seat_all_cvEnable_checkButton = tk.Checkbutton(main_window,text="All",variable=seat_all_cvEnableBool_var)
+seat_all_cvEnable_checkButton = tk.Checkbutton(main_window,
+                                                text="All",
+                                                variable=seat_all_cvEnableBool_var,
+                                                command = all_lock_change)
 seat_all_cvEnable_checkButton.grid(row=2,column=2)
 seat_pilotHandleLabel = tk.Label(main_window,text="Pilot Name")
 seat_pilotHandleLabel.grid(row=2,column=3)
