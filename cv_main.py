@@ -1,4 +1,4 @@
-#FIXME Urgent - unasign results of pack and grid to buttons https://stackoverflow.com/questions/24911805/change-the-value-of-a-variable-with-a-button-tkinter
+#FIXME Urgent - un-assign results of pack and grid to buttons https://stackoverflow.com/questions/24911805/change-the-value-of-a-variable-with-a-button-tkinter
 
 #tk youtube references:
 #https://www.youtube.com/watch?v=qCnBkZLb-E4
@@ -17,6 +17,7 @@ numRacers = 3
 racer_frequencies = [5645,5740,5800,5880]
 racer_enable_lock = [True,True,False,False]
 
+print('before import')
 
 import tkinter as tk
 import tkinter.messagebox
@@ -24,16 +25,17 @@ import tkinter.simpledialog
 import serial  #pyserial
 
 #Setup Serial Port
-baudRate = 9600
-ser = serial.Serial('COM1',baudRate) #open port
-serName = ser.name #print port used
-ser.write(b'hello')
-ser.close()
+#baudRate = 9600
+#ser = serial.Serial('COM6',baudRate) #open port
+#serName = ser.name #print port used
+#ser.write(b'hello')
+#ser.close()
+
 
 #set up main window
 main_window = tk.Tk()
 main_window.title("VM")
-main_window.geometry('640x480+1300+400')
+main_window.geometry('640x480+500+400')
 
 #main_window menu
 menu_main = tk.Menu(main_window)
@@ -43,6 +45,7 @@ main_window.config(menu=menu_main)
 #   Filemenu
 def save_settings():
     print("FIXME save_settings")
+	
 filemenu = tk.Menu(menu_main,tearoff=False)
 menu_main.add_cascade(label="File",menu=filemenu)
 filemenu.add_command(label="Save",command=save_settings)
@@ -86,6 +89,7 @@ def rotor_hazard_import_racer():
     print("FIXME rotor_hazard_import_racer()")
 def rotor_hazard_start_race():
     print("FIXME rotor_hazard_start_race()")
+	
 trackermenu=tk.Menu(menu_main,tearoff=False)
 menu_main.add_cascade(label = "RotorHazard",menu=trackermenu)
 trackermenu.add_command(label="Connect",command=rotor_hazard_connect)
@@ -183,7 +187,6 @@ def custom_msg(): #display custom OSD message
 action_msg_cstm=tk.Entry(main_window)
 action_msg_cstm.grid(row=1,column=2)
 #FIXME bind custom message enter to send the custom message to all pilots
-
 
 
 
