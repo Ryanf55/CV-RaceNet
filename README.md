@@ -17,8 +17,7 @@ How to use:
 2) If python not installed: $ python --version          
 	follow this:  https://docs.python-guide.org/starting/install3/win/
 3) $ pip install --user pipenv
-4) $ pip install pyserial
-5) $ pipenv install pyserial
+4) $ pipenv install pyserial
 
 5) to run the program: $ pipenv run python cv_main.py
 	It will create a virtual environment when it first runs. May take a while..
