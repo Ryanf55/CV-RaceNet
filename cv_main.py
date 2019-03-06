@@ -7,8 +7,8 @@
 #todo:
 #1) Learn how to import data via csv or JSON for "heats"
 #2) Create separate frequency picker window using https://www.youtube.com/watch?v=jBUpjijYtCk&list=PLQVvvaa0QuDclKx-QpC9wntnURXVJqLyk&index=4
-	#buttons for each frequency, in a table format
-	#The list of bands active is in the JSON config file
+    #buttons for each frequency, in a table format
+    #The list of bands active is in the JSON config file
 #3) Bugfix: Reducing number of pilots doesn't change gui. Maybe try disabling
 #4) Learn how to make a python class to handle serial comms with clearview
 #5) COM port dropdown (see https://pythonspot.com/tk-dropdown-example/
@@ -124,7 +124,7 @@ def change_n_racers():
             tk.messagebox.showinfo("Adjust Number of Racers","Error: Already set up for " + str(n_racers_req) + " racers.\n Keeping the same value...")
         else:    
             tk.messagebox.showinfo("Adjust Number of Racers","Ok. There are now " + str(n_racers_req) + " racers.")
-            drawGrid()
+            drawGrid(prevRacers,numRacers-prevRacers)
     else:
         tk.messagebox.showinfo("Adjust Number of Racers","Invalid number of racers")
         
@@ -165,7 +165,7 @@ but_connect.grid(row=0,column=1,columnspan=2)
 class seat:
     def __init__(self,*args,**kwargs):
             n = 2
-	
+    
 
 #Row 1 = Actions
 def start_race():
@@ -192,11 +192,11 @@ action_msg_cstm.grid(row=1,column=2)
 #Commands to RX
 def setLockStat(lockEnable):
     print("FIXME - Change lock stat to ",lockEnable)
-	
+    
 
 
 
-#Seats
+#Seats, top row applies commands to all CV's that are connected
 seat_all_label = tk.Label(main_window,text="All")
 seat_all_label.grid(row=2,column=0)
 seat_all_cvEnableBool_var = tk.IntVar()
@@ -218,38 +218,64 @@ seat_pilotHandles = []
 seat_pilotHandles_vars=[]
 
 
-def drawGrid():
-    print(seat_labels)
-    i=0
-    for x in range(numRacers):
-        r=3+i
-        seat_labels.append(tk.Label(main_window,text="%s%d" % ("Racer ", x)).grid(row=r,column=0))
+def drawGrid(current_racers,racers_to_add):
+    #calculate how many "racers_to_add". Append them. At startup, append all. 
+    #if racers_to_add <0, remove some
+    if racers_to_add < 0:
+        if current_racers == 0:
+            print("Error. Tried to remove racers when there are 0")
+        else:
+            print("Removing some racers")
+            for x in range(-1*racers_to_add):
+                print("Destroying racer n from the end. n=",x)
+                print(seat_labels[-1],seat_cvEnable_checkButtons[-1],seat_pilotHandles[-1])
+                seat_labels[-1].destroy()
+                seat_labels.pop()
+                seat_cvEnable_checkButtons[-1].destroy()
+                seat_cvEnable_checkButtons.pop()
+                seat_cvEnable_variables.pop()
+                seat_pilotHandles[-1].destroy()
+                seat_pilotHandles.pop()
+                seat_pilotHandles_vars.pop()
+                
+                
+                
+    else: #add racers         
         
-        seat_cvEnable_variables.append(tk.IntVar())
-        #check racer_enable_lock has enough elements
-        if len(racer_enable_lock) == i : #add element based on the "all" value
-            print("adding en_lock")
-            racer_enable_lock.append(seat_all_cvEnableBool_var.get())
-        seat_cvEnable_variables[i].set(racer_enable_lock[i])
-        seat_cvEnable_checkButtons.append(tk.Checkbutton(main_window,
-            text="%s%d" % ("Lock", x),
-            variable=seat_cvEnable_variables[i],
-            command = lambda: setLockStat(i))
-            .grid(row=r, column=2))
-        
-        seat_pilotHandles_vars.append(tk.StringVar())
-        seat_pilotHandles.append(tk.Entry(textvariable = seat_pilotHandles_vars[i]))
-        seat_pilotHandles[i].grid(row=r,column=3)
-		
-
-        #clean up grid. Delete any elements beyond numRacers
-        if i>=numRacers-1:
-            print("FIXME Cleanup")
+        for x in range(racers_to_add):
+            i=current_racers+x
+            print("X is ",x)
+            r=3+i #row of text used in the grid
+            seat_labels.append(tk.Label(main_window,text="%s%d" % ("Racer ", i)))
+            print("SeatLabel is ",seat_labels[i])
+            seat_cvEnable_variables.append(tk.IntVar())
             
+            #check racer_enable_lock has enough elements
+            if len(racer_enable_lock) == i : #add element based on the "all" value
+                print("adding en_lock")
+                racer_enable_lock.append(seat_all_cvEnableBool_var.get())
+            seat_cvEnable_variables[i].set(racer_enable_lock[i])
+            seat_cvEnable_checkButtons.append(tk.Checkbutton(main_window,
+                text="%s%d" % ("Lock", x),
+                variable=seat_cvEnable_variables[i],
+                command = lambda: setLockStat(i)) #end button declaration
+                ) #end append
+            
+            seat_pilotHandles_vars.append(tk.StringVar())
+            seat_pilotHandles.append(tk.Entry(textvariable = seat_pilotHandles_vars[i]))
+            
+            #form grid
+            seat_cvEnable_checkButtons[i].grid(row=r, column=2)
+            seat_labels[i].grid(row=r,column=0)
+            seat_pilotHandles[i].grid(row=r,column=3)
+            
+
+            #clean up grid. Delete any elements beyond numRacers
+                
+            print()
         
-        i+=1
-drawGrid()
-	
+drawGrid(0,numRacers) #add numRacers to the grid
+    
 #Menu Bars
 #main_window.add_command(label = 'File')
 
