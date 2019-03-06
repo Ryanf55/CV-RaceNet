@@ -328,8 +328,9 @@ def drawGrid(current_racers,racers_to_add):
             seat_cvEnable_checkButtons[i].grid(row=r, column=2)
             seat_labels[i].grid(row=r,column=0)
             seat_pilotHandles[i].grid(row=r,column=3)
-            seat_pilotCamTypes[i].grid(row=r,column=4)
-            seat_pilotFrequencies[i].grid(row=r,column=5)
+            seat_pilotFrequencies[i].grid(row=r,column=4)
+            seat_pilotCamTypes[i].grid(row=r,column=5)
+           
             
 drawGrid(0,numRacers) #add numRacers to the grid
     
