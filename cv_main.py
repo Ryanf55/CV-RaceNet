@@ -41,7 +41,7 @@ import serial  #pyserial
 #set up main window
 main_window = tk.Tk()
 main_window.title("VM")
-main_window.geometry('640x480+1300+400')
+main_window.geometry('640x480+500+400')
 
 #main_window menu
 menu_main = tk.Menu(main_window)
@@ -107,17 +107,17 @@ def get_com_ports():
     ports =  serial.tools.list_ports.comports()
 
     port_message = "Here is a list of " + str(len(ports)) + " available ports:\n"
+    com_port_list = []
     for p in ports:
         pname = str(p).split(' ')[0]
         print (pname.split(' ')[0])
+        com_port_list.append(pname)
         port_message = port_message+ str(p) + '\n'
     msg = tk.messagebox.showinfo("COM Lister", port_message) #pop up message with list of ports
- 
+    print ("Com port list (actually a set): ",com_port_list)
+    reset_com_menu(com_port_list)
     
-    if com_entry_var.get() =="":#populate com port entry box with the latest available COM port if nothing is in it when you scan
-        print("Populating empty com box")
-        pnameShort = str(ports[-1]).split(' ')[0]
-        com_entry_var.set(pnameShort)
+    
 
 def change_n_racers():
     global numRacers #get this global
@@ -146,9 +146,35 @@ setupmenu.add_command(label="Change Number of Racers",command=change_n_racers)
 
 
 #COM port Entry - Manually type the port
-com_entry_var = tk.StringVar()
-com_entry = tk.Entry(main_window , textvariable=com_entry_var) #text in a single line
-com_entry.grid(row=0,column=0)
+
+# Create a Tkinter variable
+com_port_var = tk.StringVar(main_window)
+ 
+# Dictionary with options
+com_port_set = { 'Empty...','Empty2'}
+com_port_var.set('Empty') # set the default option
+ 
+com_opt_menu = tk.OptionMenu(main_window, com_port_var, *com_port_set)
+#tk.Label(mainframe, text="Choose a dish").grid(row = 1, column = 1)
+com_opt_menu.grid(row = 0, column =0)
+ 
+# on change dropdown value
+def change_com_dropdown(*args):
+    print( com_port_var.get() )
+    
+def reset_com_menu(new_options):
+    if len(new_options)>0:
+        m = com_opt_menu["menu"]
+        m.delete(0,"end")
+        for string in new_options:
+           m.add_command(label=string,
+                        command=lambda value = string: 
+                                        com_port_var.set(value)) 
+        com_port_var.set(new_options[0])
+ 
+# link function to change dropdown
+com_port_var.trace('w', change_com_dropdown)
+
 
 #Click to open or close COM port. FIXME close COM on window close
 conn_serial = False
@@ -169,10 +195,7 @@ def toggle_COM():
     
     
 but_connect = tk.Button(main_window,text="Connect",command=toggle_COM)
-but_connect.grid(row=0,column=1,columnspan=2)
-class seat:
-    def __init__(self,*args,**kwargs):
-            n = 2
+#but_connect.grid(row=0,column=1,columnspan=2)
     
 
 #Row 1 = Actions
