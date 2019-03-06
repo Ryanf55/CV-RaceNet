@@ -32,11 +32,11 @@ import tkinter.simpledialog
 import serial  #pyserial
 
 #Setup Serial Port
-baudRate = 9600
-ser = serial.Serial('COM1',baudRate) #open port
-serName = ser.name #print port used
-ser.write(b'hello')
-ser.close()
+# baudRate = 9600
+# ser = serial.Serial('COM1',baudRate) #open port
+# serName = ser.name #print port used
+# ser.write(b'hello')
+# ser.close()
 
 #set up main window
 main_window = tk.Tk()
@@ -218,6 +218,12 @@ seat_all_frequency.grid(row=2,column=4)
 seat_all_camera = tk.Label(main_window,text="Camera Type")
 seat_all_camera.grid(row=2,column=5)
 
+# dropVar = tk.StringVar()
+# setOps = set(racer_camera_options)
+# dropVar.set('NTSC') # set the default option
+# popupMenu = OptionMenu(mainframe, dropVar, *setOps)
+# popupMenu.grid(row=1,column=10)
+
 
 seat_labels = [] #seat number GUI labels
 seat_cvEnable_checkButtons = [] #enable CV lock GUI CheckButton
@@ -246,6 +252,10 @@ def drawGrid(current_racers,racers_to_add):
                 seat_pilotHandles[-1].destroy()
                 seat_pilotHandles.pop()
                 seat_pilotHandles_vars.pop()
+                seat_pilotFrequencies[-1].destroy()
+                seat_pilotFrequencies.pop()
+                seat_pilotCamTypes[-1].destroy()
+                seat_pilotCamTypes.pop()
                 
     else: #add racer seat rows         
         
@@ -282,8 +292,8 @@ def drawGrid(current_racers,racers_to_add):
             #Put elements in the grid
             seat_cvEnable_checkButtons[i].grid(row=r, column=2)
             seat_labels[i].grid(row=r,column=0)
-            seat_pilotCamTypes[i].grid(row=r,column=3)
-            seat_pilotHandles[i].grid(row=r,column=4)
+            seat_pilotHandles[i].grid(row=r,column=3)
+            seat_pilotCamTypes[i].grid(row=r,column=4)
             seat_pilotFrequencies[i].grid(row=r,column=5)
             
 drawGrid(0,numRacers) #add numRacers to the grid
