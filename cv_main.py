@@ -1,4 +1,4 @@
-#FIXME Urgent - un-assign results of pack and grid to buttons https://stackoverflow.com/questions/24911805/change-the-value-of-a-variable-with-a-button-tkinter
+#FIXME Urgent - unasign results of pack and grid to buttons https://stackoverflow.com/questions/24911805/change-the-value-of-a-variable-with-a-button-tkinter
 
 #tk youtube references:
 #https://www.youtube.com/watch?v=qCnBkZLb-E4
@@ -13,11 +13,18 @@
 #4) Learn how to make a python class to handle serial comms with clearview
 #5) COM port dropdown (see https://pythonspot.com/tk-dropdown-example/
 #Options
-numRacers = 3
+numRacers = 7
 racer_frequencies = [5645,5740,5800,5880]
-racer_enable_lock = [True,True,False,False]
+racer_enable_lock = []
+racer_camera_options = ("NSTC","PAL","AUTO") #these are fixed
+racer_polarization = ("RHCP","LCHP","Linear","MIMO")
+racer_defaults = {
+    "camera_type": "NTSC",
+    "frequency": "5740",
+    "handle": "CV Pilot",
+    }
 
-print('before import')
+
 
 import tkinter as tk
 import tkinter.messagebox
@@ -25,17 +32,16 @@ import tkinter.simpledialog
 import serial  #pyserial
 
 #Setup Serial Port
-#baudRate = 9600
-#ser = serial.Serial('COM6',baudRate) #open port
-#serName = ser.name #print port used
-#ser.write(b'hello')
-#ser.close()
-
+baudRate = 9600
+ser = serial.Serial('COM1',baudRate) #open port
+serName = ser.name #print port used
+ser.write(b'hello')
+ser.close()
 
 #set up main window
 main_window = tk.Tk()
 main_window.title("VM")
-main_window.geometry('640x480+500+400')
+main_window.geometry('640x480+1300+400')
 
 #main_window menu
 menu_main = tk.Menu(main_window)
@@ -45,7 +51,6 @@ main_window.config(menu=menu_main)
 #   Filemenu
 def save_settings():
     print("FIXME save_settings")
-	
 filemenu = tk.Menu(menu_main,tearoff=False)
 menu_main.add_cascade(label="File",menu=filemenu)
 filemenu.add_command(label="Save",command=save_settings)
@@ -89,7 +94,6 @@ def rotor_hazard_import_racer():
     print("FIXME rotor_hazard_import_racer()")
 def rotor_hazard_start_race():
     print("FIXME rotor_hazard_start_race()")
-	
 trackermenu=tk.Menu(menu_main,tearoff=False)
 menu_main.add_cascade(label = "RotorHazard",menu=trackermenu)
 trackermenu.add_command(label="Connect",command=rotor_hazard_connect)
@@ -190,6 +194,7 @@ action_msg_cstm.grid(row=1,column=2)
 
 
 
+
 #FIXME add horizontal divider line or frame pack here.
 
 #Commands to RX
@@ -214,11 +219,14 @@ seat_all_camera = tk.Label(main_window,text="Camera Type")
 seat_all_camera.grid(row=2,column=5)
 
 
-seat_labels = [] #Racer 1, Racer 2 etc
-seat_cvEnable_checkButtons = [] #enable CheckButton
-seat_cvEnable_variables = []
-seat_pilotHandles = []
-seat_pilotHandles_vars=[]
+seat_labels = [] #seat number GUI labels
+seat_cvEnable_checkButtons = [] #enable CV lock GUI CheckButton
+seat_cvEnable_variables = [] #variable that keep track of whether lock is permitted
+seat_pilotHandles = [] #pilot name GUI labels
+seat_pilotHandles_vars=[] #pilot name variables that go on OSD
+seat_pilotFrequencies = [] #seat frequency GUI labels
+seat_pilotCamTypes = [] #seat camera type GUI labels
+
 
 
 def drawGrid(current_racers,racers_to_add):
@@ -227,11 +235,9 @@ def drawGrid(current_racers,racers_to_add):
     if racers_to_add < 0:
         if current_racers == 0:
             print("Error. Tried to remove racers when there are 0")
-        else:
-            print("Removing some racers")
+        else: #delete some racer rows
             for x in range(-1*racers_to_add):
                 print("Destroying racer n from the end. n=",x)
-                print(seat_labels[-1],seat_cvEnable_checkButtons[-1],seat_pilotHandles[-1])
                 seat_labels[-1].destroy()
                 seat_labels.pop()
                 seat_cvEnable_checkButtons[-1].destroy()
@@ -241,21 +247,19 @@ def drawGrid(current_racers,racers_to_add):
                 seat_pilotHandles.pop()
                 seat_pilotHandles_vars.pop()
                 
-                
-                
-    else: #add racers         
+    else: #add racer seat rows         
         
         for x in range(racers_to_add):
             i=current_racers+x
-            print("X is ",x)
             r=3+i #row of text used in the grid
+            
+            #Seat Number
             seat_labels.append(tk.Label(main_window,text="%s%d" % ("Racer ", i)))
-            print("SeatLabel is ",seat_labels[i])
             seat_cvEnable_variables.append(tk.IntVar())
             
-            #check racer_enable_lock has enough elements
+            #Lock Status
+                #check racer_enable_lock has enough elements
             if len(racer_enable_lock) == i : #add element based on the "all" value
-                print("adding en_lock")
                 racer_enable_lock.append(seat_all_cvEnableBool_var.get())
             seat_cvEnable_variables[i].set(racer_enable_lock[i])
             seat_cvEnable_checkButtons.append(tk.Checkbutton(main_window,
@@ -264,19 +268,24 @@ def drawGrid(current_racers,racers_to_add):
                 command = lambda: setLockStat(i)) #end button declaration
                 ) #end append
             
+            #Pilot Handle
             seat_pilotHandles_vars.append(tk.StringVar())
+            seat_pilotHandles_vars[i].set(racer_defaults["handle"])
             seat_pilotHandles.append(tk.Entry(textvariable = seat_pilotHandles_vars[i]))
             
-            #form grid
+            #Frequency, just a label for now
+            seat_pilotFrequencies.append(tk.Label(main_window,text=racer_defaults["frequency"]))
+            
+            #Camera Type, just a label for now
+            seat_pilotCamTypes.append(tk.Label(main_window,text=racer_defaults["camera_type"]))
+            
+            #Put elements in the grid
             seat_cvEnable_checkButtons[i].grid(row=r, column=2)
             seat_labels[i].grid(row=r,column=0)
-            seat_pilotHandles[i].grid(row=r,column=3)
+            seat_pilotCamTypes[i].grid(row=r,column=3)
+            seat_pilotHandles[i].grid(row=r,column=4)
+            seat_pilotFrequencies[i].grid(row=r,column=5)
             
-
-            #clean up grid. Delete any elements beyond numRacers
-                
-            print()
-        
 drawGrid(0,numRacers) #add numRacers to the grid
     
 #Menu Bars
