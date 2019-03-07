@@ -1,0 +1,220 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>basicThermalAnalysis</title><meta name="generator" content="MATLAB 9.5"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2019-03-01"><meta name="DC.source" content="basicThermalAnalysis.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><pre class="codeinput"><span class="comment">%CV Ground Station Thermal Analysis</span>
+<span class="comment">%Reference: "Fundamentals of Heat and Mass Transfer, 7th edition by</span>
+<span class="comment">%   Bergman, Lavine, Incropera, and Dewitt</span>
+clear
+clc
+
+<span class="comment">%Air properties. For rayleigh number, these properties should be evaluated</span>
+<span class="comment">%at film temp(pg 605, first paragraph)</span>
+v = 16.2*10^-6;
+alpha=22.9*10^-6;
+Beta=0.0033;
+Pr=0.71 ;<span class="comment">%Prandtl Number</span>
+g=9.81; <span class="comment">%gravity</span>
+kPlastic = 0.2;<span class="comment">% Pelican cases are a polypropylene polymer. Conduction coeff of 0.17 to 0.22 https://www.ineos.com/globalassets/ineos-group/businesses/ineos-olefins-and-polymers-usa/products/technical-information--patents/ineos-engineering-properties-of-pp.pdf</span>
+kAir = 33.8*10^-3; <span class="comment">%Air at 400k, Table A1</span>
+
+
+
+
+<span class="comment">%Goal #1 - Determine if a fan is needed by analyzing a closed box</span>
+<span class="comment">%Box: https://www.alliedelec.com/product/serpac/se430-bk/70369062/</span>
+<span class="comment">%Size is 13.6*10.7*6.3 in</span>
+box.width = inchesToMeters(13.6);
+box.length = inchesToMeters(10.7);
+box.height = inchesToMeters(6.3);
+
+<span class="comment">%Environmental Conditions = A hot day with no wind. Start out modeling the</span>
+<span class="comment">%   box in the shade (no solar loading). Neglect radiation and conduction.</span>
+<span class="comment">%   Assume the bottom of the box to be insulated, such as the box sitting on</span>
+<span class="comment">%   a table or the ground.</span>
+<span class="comment">%</span>
+temp_ambient = farenToCelc(100); <span class="comment">%Assume a pretty hot day out of 100F.</span>
+Temp_Surface_Range = linspace(temp_ambient+5,60,25);
+
+idx = 1;
+<span class="keyword">for</span> Ts=Temp_Surface_Range(1:end) <span class="comment">%Toasty exterior of 60C</span>
+    <span class="comment">%Perform a basic control volume analysis of the box using free/natural</span>
+    <span class="comment">%convection on the top surface and the four sides of the box. Using example</span>
+    <span class="comment">%9.3 on pg 611</span>
+
+    <span class="comment">%Top of the box: Analysis for upper surface of flat hot plate in cool air.</span>
+
+    Area = box.width * box.length; <span class="comment">%top area</span>
+    Perim=box.width * 2+box.length * 2; <span class="comment">%top perim</span>
+    L=Area/Perim; <span class="comment">%Characteristic length for flat plate</span>
+    Ral_top = g * Beta * (Ts-temp_ambient) * L^3 / (v * alpha); <span class="comment">%Rayleigh Number</span>
+    h_top   = (kAir/L) * 0.15 * Ral_top^(1/3);<span class="comment">% Convection coeffient for top surface, equation 9.31</span>
+    q_top = h_top * Area * (Ts-temp_ambient); <span class="comment">%watts dissipated from the top</span>
+
+    <span class="comment">%Sides of the box: Analysis for vertical hot plate in cool air</span>
+    Area=box.height * Perim;
+    L=box.height; <span class="comment">%characeristic length for the sides of the box</span>
+    Ral_sides = g*Beta*(Ts-temp_ambient)*L^3 / (v*alpha); <span class="comment">%Rayleigh Number, is less than 10^9, so use laminar relations</span>
+    Nul = 0.68 + 0.670*Ral_sides^(1/4) / (1 + (0.492/Pr)^(9/16))^(4/9);<span class="comment">% Equation 9.27, more accurate nussult number</span>
+    h_sides = Nul*kAir/L;
+    q_sides = h_sides*Area*(Ts-temp_ambient)
+
+    qTotal(idx) = q_top+q_sides;
+    idx=idx+1;
+<span class="keyword">end</span>
+
+plot(Temp_Surface_Range,qTotal);
+xlabel(<span class="string">'Box Surface Temperature (C)'</span>);
+ylabel(<span class="string">'Heat Loss (W)'</span>);
+title(<span class="string">'Box Heat Loss vs. Box Surface Temperature'</span>);
+grid <span class="string">on</span>;
+
+<span class="keyword">function</span> c = farenToCelc(f)
+    c = (f-32)*5/9;
+<span class="keyword">end</span>
+
+<span class="keyword">function</span> m = inchesToMeters(in)
+    m = in/39.37;
+<span class="keyword">end</span>
+</pre><img vspace="5" hspace="5" src="basicThermalAnalysis_01.png" alt=""> <p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2018b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%CV Ground Station Thermal Analysis
+%Reference: "Fundamentals of Heat and Mass Transfer, 7th edition by
+%   Bergman, Lavine, Incropera, and Dewitt
+clear
+clc
+
+%Air properties. For rayleigh number, these properties should be evaluated
+%at film temp(pg 605, first paragraph)
+v = 16.2*10^-6;
+alpha=22.9*10^-6;
+Beta=0.0033;
+Pr=0.71 ;%Prandtl Number
+g=9.81; %gravity
+kPlastic = 0.2;% Pelican cases are a polypropylene polymer. Conduction coeff of 0.17 to 0.22 https://www.ineos.com/globalassets/ineos-group/businesses/ineos-olefins-and-polymers-usa/products/technical-informationREPLACE_WITH_DASH_DASHpatents/ineos-engineering-properties-of-pp.pdf
+kAir = 33.8*10^-3; %Air at 400k, Table A1
+
+
+
+
+%Goal #1 - Determine if a fan is needed by analyzing a closed box
+%Box: https://www.alliedelec.com/product/serpac/se430-bk/70369062/
+%Size is 13.6*10.7*6.3 in
+box.width = inchesToMeters(13.6);
+box.length = inchesToMeters(10.7);
+box.height = inchesToMeters(6.3);
+
+%Environmental Conditions = A hot day with no wind. Start out modeling the
+%   box in the shade (no solar loading). Neglect radiation and conduction.
+%   Assume the bottom of the box to be insulated, such as the box sitting on 
+%   a table or the ground.
+%   
+temp_ambient = farenToCelc(100); %Assume a pretty hot day out of 100F.
+Temp_Surface_Range = linspace(temp_ambient+5,60,25);
+
+idx = 1;
+for Ts=Temp_Surface_Range(1:end) %Toasty exterior of 60C
+    %Perform a basic control volume analysis of the box using free/natural
+    %convection on the top surface and the four sides of the box. Using example
+    %9.3 on pg 611
+
+    %Top of the box: Analysis for upper surface of flat hot plate in cool air.
+
+    Area = box.width * box.length; %top area
+    Perim=box.width * 2+box.length * 2; %top perim
+    L=Area/Perim; %Characteristic length for flat plate
+    Ral_top = g * Beta * (Ts-temp_ambient) * L^3 / (v * alpha); %Rayleigh Number
+    h_top   = (kAir/L) * 0.15 * Ral_top^(1/3);% Convection coeffient for top surface, equation 9.31
+    q_top = h_top * Area * (Ts-temp_ambient); %watts dissipated from the top
+
+    %Sides of the box: Analysis for vertical hot plate in cool air
+    Area=box.height * Perim;
+    L=box.height; %characeristic length for the sides of the box
+    Ral_sides = g*Beta*(Ts-temp_ambient)*L^3 / (v*alpha); %Rayleigh Number, is less than 10^9, so use laminar relations
+    Nul = 0.68 + 0.670*Ral_sides^(1/4) / (1 + (0.492/Pr)^(9/16))^(4/9);% Equation 9.27, more accurate nussult number
+    h_sides = Nul*kAir/L;
+    q_sides = h_sides*Area*(Ts-temp_ambient)
+
+    qTotal(idx) = q_top+q_sides;
+    idx=idx+1;
+end
+
+plot(Temp_Surface_Range,qTotal);
+xlabel('Box Surface Temperature (C)');
+ylabel('Heat Loss (W)');
+title('Box Heat Loss vs. Box Surface Temperature');
+grid on;
+
+function c = farenToCelc(f)
+    c = (f-32)*5/9;
+end
+
+function m = inchesToMeters(in)
+    m = in/39.37;
+end
+##### SOURCE END #####
+--></body></html>
